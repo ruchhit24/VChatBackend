@@ -299,19 +299,22 @@ export const searchUser = async (req, res) => {
   const { name = "" } = req.query;
 
   const myChats = await Chat.find({ groupChat: false, members: req.user });
-  const allUserFromMyChats = myChats.map((chat) => chat.members).flat();
+  console.log('mychats',myChats)
+  // Extract all users from the chats (excluding the current user)
+  const allUserFromMyChats = myChats.map((chat) => chat.members).flat().filter(memberId => memberId.toString() !== req.user.toString());
 
+  // Find all users except the current user and users from the chats
   const allUsersExceptMeAndFriends = await User.find({
-    _id: { $nin: allUserFromMyChats },
+    _id: { $nin: allUserFromMyChats.concat(req.user) }, // Exclude current user and users from chats
     name: { $regex: name, $options: "i" },
-  }).sort({ createdAt: -1 }); // Sort by createdAt field in descending order
-
+  }).sort({ createdAt: -1 });
+console.log('allUsersExceptMeAndFriends = ',allUsersExceptMeAndFriends)
   const users = allUsersExceptMeAndFriends.map((user) => ({
     _id: user._id,
     name: user.name,
     avatar: user.avatar.url,
   }));
-
+console.log('users = ',users)
   return res.status(200).json({ users });
 };
 
