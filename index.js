@@ -89,10 +89,11 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  // console.log("A user is connected with socketId = ", socket.id);
+  console.log("A user is connected with socketId = ", socket.id);
+  socket.emit("me",socket.id);
 
   const user = socket.user;
-  console.log("user = ", user);
+  // console.log("user = ", user);
 
   const { _id } = user;
 
@@ -166,14 +167,42 @@ io.on("connection", (socket) => {
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 
+  //VIDEO CALL
+   
+
+	socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+		io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+	});
+
+	socket.on("answerCall", (data) => {
+		io.to(data.to).emit("callAccepted", data.signal)
+	});
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
     // Remove user's socket ID on disconnect
     userSocketIds.delete(_id.toString());
     onlineUsers.delete(user._id.toString());
     socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+    socket.broadcast.emit("callEnded")
     
   });
+
+  //video calling 
+  // socket.emit("me",socket.id);
+
+	// socket.on("disconnect", () => {
+	// 	socket.broadcast.emit("callEnded")
+	// });
+
+	// socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+	// 	io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+	// });
+
+	// socket.on("answerCall", (data) => {
+	// 	io.to(data.to).emit("callAccepted", data.signal)
+	// });
+
 });
 
 // server.get("/", (req, res) => {

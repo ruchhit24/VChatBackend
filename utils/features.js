@@ -28,8 +28,8 @@ export const uploadFilesToCloudinary = async (files = []) => {
              public_id: uuid(),
            },
            (error, result) => {
-             if (error) return reject(error);
-             resolve(result);
+             if (error)  reject(error);
+             else resolve(result);
            }
          );
        });
@@ -44,7 +44,8 @@ export const uploadFilesToCloudinary = async (files = []) => {
        }));
        return formattedResults;
      } catch (err) {
-       throw new Error("Error uploading files to cloudinary", err);
+      //  throw new Error("Error uploading files to cloudinary", err);
+      return err; // Return the error instead of throwing
      }
    };
 

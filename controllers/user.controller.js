@@ -58,7 +58,9 @@ export const newUser = async (req, res) => {
       .json({ success: false, message: "please upload avatar" });
   }
 
-  const result = await uploadFilesToCloudinary([file]);
+   try {
+    const result = await uploadFilesToCloudinary([file]);
+  console.log('result from cloudinary = ',result)
 
   const avatar = {
     public_id: result[0].publicId,
@@ -109,7 +111,11 @@ export const newUser = async (req, res) => {
   // res.status(201).json({ message : 'user craeted' })
 
   sendToken(res, user, 201, "User Created successfully");
-};
+} catch (error) {
+  console.error("Error uploading file to Cloudinary:", error);
+  res.status(500).json({ success: false, message: "Error uploading avatar" });
+   }
+  }
 
 export const verifyEmail = async (req, res) => {
   const { userId, otp } = req.body;
