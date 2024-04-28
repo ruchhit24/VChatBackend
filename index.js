@@ -88,14 +88,25 @@ io.use((socket, next) => {
   );
 });
 
+
 io.on("connection", (socket) => {
   console.log("A user is connected with socketId = ", socket.id);
   socket.emit("me",socket.id);
 
+ 
   const user = socket.user;
   // console.log("user = ", user);
 
   const { _id } = user;
+
+  console.log("user ki _id = "+ _id + " "+"socket ki id =",socket.id)
+
+  socket.on("getAllMemberSocketsID",({members})=>{
+    console.log("members from frontend =",members)
+    const membersSockets = getSockets(members);
+    console.log("all members sockets (frontend) =",membersSockets)
+    io.to(membersSockets).emit("allMembersSocketID",{membersSockets})
+  })
 
   // Store user's socket ID
   userSocketIds.set(_id.toString(), socket.id);
@@ -120,7 +131,7 @@ io.on("connection", (socket) => {
 
     // Get sockets of all members
     const membersSocket = getSockets(members);
-
+    console.log("sockets of all members = ",membersSocket)
     // Emit message to all members
     io.to(membersSocket).emit(NEW_MESSAGE, {
       chatId,
@@ -149,21 +160,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on(CHAT_JOINED, ({ userId, members }) => {
-    console.log('chat joined = ',userId)
+    // console.log('chat joined = ',userId)
     onlineUsers.add(userId.toString());
 
+    // console.log("members while char joined = ",members)
+
     const membersSocket = getSockets(members);
-    console.log("online users joined = ", onlineUsers);
+    console.log("sockets of all members = ",membersSocket)
+    // console.log("online users joined = ", onlineUsers);
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 
   socket.on(CHAT_LEAVED, ({ userId, members }) => {
-    console.log('chat leaved = ',userId)
+    // console.log('chat leaved = ',userId)
 
     onlineUsers.delete(userId.toString());
 
     const membersSocket = getSockets(members);
-    console.log("online users leaved = ", onlineUsers);
+    // console.log("online users leaved = ", onlineUsers);
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 
@@ -189,19 +203,19 @@ io.on("connection", (socket) => {
   });
 
   //video calling 
-  // socket.emit("me",socket.id);
+  socket.emit("me",socket.id);
 
-	// socket.on("disconnect", () => {
-	// 	socket.broadcast.emit("callEnded")
-	// });
+	socket.on("disconnect", () => {
+		socket.broadcast.emit("callEnded")
+	});
 
-	// socket.on("callUser", ({ userToCall, signalData, from, name }) => {
-	// 	io.to(userToCall).emit("callUser", { signal: signalData, from, name });
-	// });
+	socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+		io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+	});
 
-	// socket.on("answerCall", (data) => {
-	// 	io.to(data.to).emit("callAccepted", data.signal)
-	// });
+	socket.on("answerCall", (data) => {
+		io.to(data.to).emit("callAccepted", data.signal)
+	});
 
 });
 

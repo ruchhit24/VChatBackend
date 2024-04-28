@@ -370,7 +370,7 @@ export const deleteGroup = async (req, res) => {
     }
 
     const chat = await Chat.findById(chatId);
-    console.log("chat = ", chat);
+    // console.log("chat = ", chat);
 
     if (!chat) {
       return res.status(404).json({ message: "Chat not found" }); // Return a response instead of empty string

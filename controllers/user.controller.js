@@ -10,6 +10,7 @@ import {
 } from "../utils/features.js";
 import {
   NEW_REQUEST,
+  NEW_VIDEO_REQUEST,
   ONLINE_USERS,
   REFETCH_CHATS,
   friendRequestAccepted
@@ -305,7 +306,7 @@ export const searchUser = async (req, res) => {
   const { name = "" } = req.query;
 
   const myChats = await Chat.find({ groupChat: false, members: req.user });
-  console.log('mychats',myChats)
+  // console.log('mychats',myChats)
   // Extract all users from the chats (excluding the current user)
   const allUserFromMyChats = myChats.map((chat) => chat.members).flat().filter(memberId => memberId.toString() !== req.user.toString());
 
@@ -348,6 +349,14 @@ export const sendFriendRequest = async (req, res) => {
   return res
     .status(200)
     .json({ success: true, message: "Friend request sent" });
+};
+export const sendVideoRequest = async (req, res) => {
+  const { userId } = req.body;
+
+  emitEvent(req ,NEW_VIDEO_REQUEST, [userId]);
+  return res
+    .status(200)
+    .json({ success: true, message: "Video request sent" });
 };
 
 export const acceptFriendRequest = async (req, res) => {
