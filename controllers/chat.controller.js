@@ -70,6 +70,7 @@ export const getMyChats = async (req, res, next) => {
       };
     });
 
+    emitEvent(req, REFETCH_CHATS, chats.members);
     return res.status(200).json({ success: true, transformedChats });
   } catch (error) {
     return res

@@ -399,7 +399,7 @@ export const acceptFriendRequest = async (req, res) => {
     request.deleteOne(),
   ]);
 
-  emitEvent(req, REFETCH_CHATS, members);
+  emitEvent(req, REFETCH_CHATS, [members]);
 
     // Emit a socket event to the sender of the request
     const senderSocketId = userSocketIds.get(request.sender._id.toString());
